@@ -1,1 +1,1 @@
-Solution to exercises 1.6-1.11: CourseInfo
+Solution to exercises 1.6-1.11: Unicafe

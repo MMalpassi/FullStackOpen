@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react'
+import { useState, useEffect } from 'react'
+import phonebookService from './services/phonebook'
 
 const Filter = (props) => {
   return (
@@ -30,9 +31,23 @@ const Persons = (props) => {
       {props.persons
         .filter(person => person.name.toLowerCase().includes((props.filter).toLowerCase()))
         .map(person => (
-          <p key={person.id}>{person.name} {person.number}</p>
+          <p key={person.id}>{person.name} {person.number}
+             <button onClick={() => props.property(person.id)}>Delete</button>
+          </p>
         ))
       }
+    </div>
+  )
+}
+
+const Notification = ({ message, error }) => {
+  if (!message && !error) return null
+
+  const className = error ? 'error' : 'success'
+
+  return (
+    <div className={className}>
+      {message || error}
     </div>
   )
 }
@@ -42,23 +57,80 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterName, setFilterName] = useState('')
-  const idRef = useRef(0)
+  const [successMessage, setSuccessMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
+
+  useEffect(() => {
+    phonebookService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
+      })
+  }, [])
 
   const addPerson = (event) => {
     event.preventDefault()
     console.log('button clicked', event.target)
     const personObject = {
       name: newName,
-      number: newNumber,
-      id: idRef.current
+      number: newNumber
     }
-    const nameRepeated = persons.find((person) => person.name === newName)
-    {nameRepeated ? 
-      alert(`${newName} is already added to phonebook`) : 
-      setPersons(persons.concat(personObject))
-      idRef.current++
-      setNewName('')
-      setNewNumber('')
+    const nameRepeated = persons.find(person => person.name === newName)
+    if (nameRepeated) {
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        const updatedPerson = { ...nameRepeated, number: newNumber }
+        phonebookService
+        .update(nameRepeated.id, updatedPerson)
+        .then(returnedPerson => {
+          setPersons(persons.map(p => p.id !== nameRepeated.id ? p : returnedPerson))
+          setNewName('')
+          setNewNumber('')
+        })
+        .catch(error => {
+          console.error('Error updating person:', error)
+          setErrorMessage(
+              `'${newName}' has already been removed from the server`
+            )
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
+        })
+      }
+    } else {
+      phonebookService
+      .create(personObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        setNewName('')
+        setNewNumber('')
+      })
+
+      setSuccessMessage(
+          `Added '${newName}'`
+        )
+        setTimeout(() => {
+          setSuccessMessage(null)
+        }, 5000)
+    }
+  }
+
+  const deletePerson = (id) => {
+    const person = persons.find(person => person.id === id)
+    if (window.confirm(`Delete ${person.name} number?`)) {
+      phonebookService
+      .deleteObject(id)
+      .then(() => {
+        setPersons(persons.filter(p => p.id !== id))
+      })
+      .catch(error => {
+        console.error('Error deleting person:', error)
+        setErrorMessage(
+            `Error deleting'${newName}'`
+          )
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
+      })
     }
   }
 
@@ -77,11 +149,12 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={successMessage} error={errorMessage}/>
       <Filter filter={filterName} property={handleFilter}/>
       <h2>Add a new contact!</h2>
       <PersonForm property={addPerson} personName={newName} propertyPersonName={handleNewName} personNumber={newNumber} propertyPersonNumber={handleNewNumber}/>
       <h2>Numbers</h2>
-      <Persons persons={persons} filter={filterName}/>
+      <Persons persons={persons} filter={filterName} property={deletePerson}/>
     </div>
   )
 }

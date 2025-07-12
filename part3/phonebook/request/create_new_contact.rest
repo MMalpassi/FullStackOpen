@@ -1,0 +1,32 @@
+POST http://localhost:3001/api/phonebook
+Content-Type: application/json
+
+{
+    "name": "Mateo",
+    "number": "39-44-5323333"
+}
+
+### Error: number missing
+POST http://localhost:3001/api/phonebook
+Content-Type: application/json
+
+{
+  "name": "SinNumero"
+}
+
+### Error: name missing
+POST http://localhost:3001/api/phonebook
+Content-Type: application/json
+
+{
+  "number": "123-456"
+}
+
+### Error: name already exists
+POST http://localhost:3001/api/phonebook
+Content-Type: application/json
+
+{
+  "name": "Arto Hellas",
+  "number": "999-999"
+}

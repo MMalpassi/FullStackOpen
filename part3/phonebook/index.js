@@ -1,6 +1,9 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const mongoose = require('mongoose')
+const Contact = require('./models/contact')
 
 const app = express()
 
@@ -16,94 +19,68 @@ app.use(cors())
 
 app.use(express.static('dist'))
 
-let phonebook = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    } 
-]
+app.use(express.json())
 
-app.get('/api/phonebook', (request, response) => {
-  response.json(phonebook)
+app.use((error, request, response, next) => {
+  console.error(error.message)
+  response.status(500).json({ error: 'Internal server error' })
 })
 
-app.get('/api/info', (request,response) => {
-  const hour = new Date();
 
-  response.send(`
-    <p>Phonebook has info for ${phonebook.length} people</p>
-    <p>${hour}</p>
-  `)
+app.get('/api/info', (request, response) => {
+  const hour = new Date()
+
+  Contact.countDocuments({}).then(count => {
+    response.send(`
+      <p>Phonebook has info for ${count} people</p>
+      <p>${hour}</p>
+    `)
+  })
+})
+
+app.get('/api/phonebook', (request, response) => {
+  Contact.find({}).then(contacts => {
+    response.json(contacts)
+  })
 })
 
 app.get('/api/phonebook/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const phonebook_contacts = phonebook.find(phonebook => phonebook.id === id)
-
-  if (phonebook_contacts) {
-    response.json(phonebook_contacts)
-  } else {
-    response.status(404).end()
-  }
+  Contact.findById(request.params.id).then(phonebook_contact => {
+    response.json(phonebook_contact)
+  })
 })
 
 app.delete('/api/phonebook/:id', (request, response) => {
-  const id = Number(request.params.id)
-  phonebook = phonebook.filter(phonebook_contact => phonebook_contact.id !== id)
-
-  response.status(204).end()
+  Contact.findByIdAndDelete(request.params.id)
+    .then(() => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
-app.use(express.json())
-
-const generateId = () => {
-  return Math.floor(Math.random() * 1000000);
-};
-
-app.post('/api/phonebook', (request, response) => {
-  const body = request.body
+app.post('/api/phonebook', (request, response, next) => {
+  const body = request.body;
 
   if (!body.number || !body.name) {
     return response.status(400).json({ 
-      error: 'number or name missing' 
-    })
-  }
-
-  const nameRepeated = phonebook.some(phonebook_contact => phonebook_contact.name === body.name);
-  if (nameRepeated) {
-    return response.status(400).json({
-      error: 'El nombre ya existe en la agenda'
+      error: 'Number or name missing' 
     });
   }
 
-  const phonebook_contact = {
-    id: generateId(),
+  const phonebook_contact = new Contact({
     name: body.name,
     number: body.number
-  }
+  });
 
-  phonebook = phonebook.concat(phonebook_contact)
+  phonebook_contact.save()
+    .then(savedContact => {
+      response.json(savedContact);
+    })
+    .catch(error => next(error));
+});
 
-  response.json(phonebook_contact)
-})
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

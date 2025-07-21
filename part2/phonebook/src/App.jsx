@@ -71,10 +71,38 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault()
     console.log('button clicked', event.target)
+
+    const isValidPhoneNumber = (number) => {
+      if (number.length < 8) return false
+
+      const parts = number.split('-')
+      if (parts.length !== 2) return false
+
+      const [first, second] = parts
+
+      if (!/^\d{2,3}$/.test(first)) return false
+      if (!/^\d+$/.test(second)) return false
+
+      return true
+    }
+
     const personObject = {
       name: newName,
       number: newNumber
     }
+
+    if (newName.length < 3 || newNumber.length === 0) {
+      setErrorMessage("The name must be at least 3 characters long and the number cannot be undefined")
+      setTimeout(() => setErrorMessage(null), 5000)
+      return
+    }
+
+    if (!isValidPhoneNumber(newNumber)) {
+      setErrorMessage("Invalid phone number format. It should be XX-XXXXXXX or XXX-XXXXXXX.")
+      setTimeout(() => setErrorMessage(null), 5000)
+      return
+    }
+
     const nameRepeated = persons.find(person => person.name === newName)
     if (nameRepeated) {
       if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
@@ -85,11 +113,13 @@ const App = () => {
           setPersons(persons.map(p => p.id !== nameRepeated.id ? p : returnedPerson))
           setNewName('')
           setNewNumber('')
+          setSuccessMessage(`Updated '${returnedPerson.name}'`)
+          setTimeout(() => setSuccessMessage(null), 5000)
         })
         .catch(error => {
           console.error('Error updating person:', error)
           setErrorMessage(
-              `'${newName}' has already been removed from the server`
+              `Error while updating`
             )
             setTimeout(() => {
               setErrorMessage(null)
@@ -104,7 +134,6 @@ const App = () => {
         setNewName('')
         setNewNumber('')
       })
-
       setSuccessMessage(
           `Added '${newName}'`
         )

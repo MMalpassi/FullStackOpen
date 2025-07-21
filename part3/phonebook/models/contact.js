@@ -14,9 +14,38 @@ mongoose.connect(url)
     console.log('error connecting to MongoDB:', error.message)
   })
 
+  
+const numberValidator = [
+  {
+    validator: function(v) {
+      if (!v || v.length < 8) return false
+
+      const parts = v.split('-')
+      if (parts.length !== 2) return false
+
+      const [first, second] = parts
+
+      if (!/^\d{2,3}$/.test(first)) return false
+
+      if (!/^\d+$/.test(second)) return false
+
+      return true
+    },
+    message: props => `${props.value} is not a valid phone number!`
+  }
+]
+
 const phonebookSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name:{
+    type: String,
+    minLength: 3,
+    requiere: true
+  },
+  number: {
+    type: String,
+    validate: numberValidator,
+    requiere: true
+  }
 })
 
 phonebookSchema.set('toJSON', {

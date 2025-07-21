@@ -11,21 +11,15 @@ morgan.token('body', (req) => {
   return req.method === 'POST' ? JSON.stringify(req.body) : '';
 });
 
-app.use(
-  morgan(':method :url :status :res[content-length] - :response-time ms :body')
-);
-
 app.use(cors())
 
 app.use(express.static('dist'))
 
 app.use(express.json())
 
-app.use((error, request, response, next) => {
-  console.error(error.message)
-  response.status(500).json({ error: 'Internal server error' })
-})
-
+app.use(
+  morgan(':method :url :status :res[content-length] - :response-time ms :body')
+);
 
 app.get('/api/info', (request, response) => {
   const hour = new Date()
@@ -44,10 +38,15 @@ app.get('/api/phonebook', (request, response) => {
   })
 })
 
-app.get('/api/phonebook/:id', (request, response) => {
+app.get('/api/phonebook/:id', (request, response, next) => {
   Contact.findById(request.params.id).then(phonebook_contact => {
-    response.json(phonebook_contact)
+    if(phonebook_contact){
+      response.json(phonebook_contact)
+    } else {
+      response.status(404).end()
+    }
   })
+  .catch(error => next(error))
 })
 
 app.delete('/api/phonebook/:id', (request, response) => {
@@ -79,6 +78,38 @@ app.post('/api/phonebook', (request, response, next) => {
     .catch(error => next(error));
 });
 
+app.put('/api/phonebook/:id', (request, response, next) => {
+  const body = request.body
+
+  const phonebook_contact = {
+    name: body.name,
+    number: body.number,
+  }
+
+  Contact.findByIdAndUpdate(request.params.id, phonebook_contact, { new: true })
+    .then(updatedContact => {
+      response.json(updatedContact)
+    })
+    .catch(error => next(error))
+})
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {

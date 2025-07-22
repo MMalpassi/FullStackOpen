@@ -1,5 +1,5 @@
 import axios from 'axios'
-const baseUrl = 'api/phonebook'
+const baseUrl = '/api/phonebook'
 
 const getAll = () => {
   const request = axios.get(baseUrl)

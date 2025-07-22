@@ -2,7 +2,6 @@ require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
-const mongoose = require('mongoose')
 const Contact = require('./models/contact')
 
 const app = express()
@@ -49,7 +48,7 @@ app.get('/api/phonebook/:id', (request, response, next) => {
   .catch(error => next(error))
 })
 
-app.delete('/api/phonebook/:id', (request, response) => {
+app.delete('/api/phonebook/:id', (request, response, next) => {
   Contact.findByIdAndDelete(request.params.id)
     .then(() => {
       response.status(204).end()
@@ -115,7 +114,7 @@ const errorHandler = (error, request, response, next) => {
 
 app.use(errorHandler)
 
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

@@ -1,0 +1,9 @@
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Wish you were here",
+  "author": "Pink Floyd",
+  "url": "www.blogs.com",
+  "likes": 4
+}

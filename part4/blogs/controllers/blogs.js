@@ -1,10 +1,9 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 
-blogsRouter.get('/', (request, response) => {
-  Blog.find({}).then(blogs => {
-    response.json(blogs)
-  })
+blogsRouter.get('/', async (request, response) => {
+  const blogs = await Blog.find({})
+  response.json(blogs)
 })
 
 blogsRouter.get('/:id', (request, response, next) => {
@@ -22,6 +21,10 @@ blogsRouter.get('/:id', (request, response, next) => {
 blogsRouter.post('/', (request, response, next) => {
   const body = request.body
 
+  if (!body.title || !body.url) {
+    return response.status(400).json({ error: 'title and url are required' })
+  }
+
   const blog = new Blog({
     title: body.title,
     author: body.author,
@@ -31,7 +34,7 @@ blogsRouter.post('/', (request, response, next) => {
 
   blog.save()
     .then(savedBlog => {
-      response.json(savedBlog)
+      response.status(201).json(savedBlog)
     })
     .catch(error => next(error))
 })

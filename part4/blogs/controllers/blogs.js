@@ -64,4 +64,44 @@ blogsRouter.put('/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
+blogsRouter.patch('/:id/unset', async (request, response, next) => {
+  try {
+    const update = request.body
+    
+    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, 
+      {$unset: update}, 
+      {new: true})
+
+    response.json(updatedBlog)
+  } catch (error) {
+    next(error)
+  }
+})
+
+blogsRouter.patch('/:id/update', async (request, response, next) => {
+  try {
+    if (request.body._id) delete request.body._id
+    if (request.body.id) delete request.body.id
+
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      request.params.id,
+      request.body,
+      {
+        new: true,
+        runValidators: true,
+        context: 'query'
+      }
+    )
+
+    if (updatedBlog) {
+      response.status(200).json(updatedBlog)
+    } else {
+      response.status(404).end()
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+
 module.exports = blogsRouter

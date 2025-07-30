@@ -129,6 +129,49 @@ test('blog must have url field', async () => {
   assert.strictEqual(response.statusCode, 400)
 })
 
+test('a single field eliminated', async () => {
+  const newBlog = {
+    title: 'Test Blog',
+    author: 'Test Author',
+    url: 'http://blogs.com/test',
+    likes: 0
+  }
+
+  const response = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const newBlogmodified = response.body
+
+  await api
+    .patch(`/api/blogs/${newBlogmodified.id}/unset`)
+    .send({ likes: '' })
+    .expect(200)
+
+  const result = await api.get(`/api/blogs/${newBlogmodified.id}`)
+  const updatedBlog = result.body
+
+  assert.strictEqual(updatedBlog.likes, undefined)
+})
+
+test('a blog can be partially updated with PATCH', async () => {
+  const blogsAtStart = await Blog.find({})
+  const blogToUpdate = blogsAtStart[0]
+
+  const update = { likes: blogToUpdate.likes + 10 }
+
+  const response = await api
+    .patch(`/api/blogs/${blogToUpdate.id}/update`)
+    .send(update)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  assert.strictEqual(response.body.likes, blogToUpdate.likes + 10)
+})
+
+
 after(async () => {
   await mongoose.connection.close()
 })

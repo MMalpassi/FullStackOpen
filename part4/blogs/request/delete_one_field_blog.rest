@@ -1,0 +1,7 @@
+# Before running the test, make sure the ID is valid.
+PATCH http://localhost:3001/api/blogs/688bb82b48235e594fe57876/unset
+Content-Type: application/json
+
+{
+  "likes": ""
+}

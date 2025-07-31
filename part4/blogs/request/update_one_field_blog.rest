@@ -1,0 +1,7 @@
+# Before running the test, make sure the ID is valid.
+PATCH http://localhost:3001/api/blogs/688bb89548235e594fe5787d/update
+Content-Type: application/json
+
+{
+  "likes": "20"
+}

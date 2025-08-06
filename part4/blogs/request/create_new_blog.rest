@@ -1,6 +1,6 @@
 POST http://localhost:3001/api/blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1NTSIsImlkIjoiNjg5M2FkM2U0YzFiYTZlMmJjNDBiNGYyIiwiaWF0IjoxNzU0NTA5OTM1fQ.b47p8ZWKYflloqhHuVdYxojoXBlbuDBvQ4gdTh7BDrA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1NTSIsImlkIjoiNjg5M2MzYzc3NWYyOWU2ZmFhZTMxZjQ1IiwiaWF0IjoxNzU0NTE0Nzc3LCJleHAiOjE3NTQ1MTgzNzd9.zEjme4XR6GPDC5dLqBm_fJgPRK5LhYUCiswNjvl68-k
 
 {
   "title": "Wish you were here",

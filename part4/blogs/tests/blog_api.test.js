@@ -1,7 +1,9 @@
 const { test, after, beforeEach} = require('node:test')
 const assert = require('node:assert')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 const supertest = require('supertest')
 const app = require('../app')
 
@@ -34,14 +36,20 @@ const blogs = [
   }
 ]
 
+let defaultUserId = null
+
 beforeEach(async () => {
   await Blog.deleteMany({})
-  let blogObject = new Blog (blogs[0])
-  await blogObject.save()
-  blogObject = new Blog(blogs[1])
-  await blogObject.save()
-  blogObject = new Blog(blogs[2])
-  await blogObject.save()
+  await User.deleteMany({})
+
+  const passwordHash = await bcrypt.hash('testpassword', 10)
+  const user = new User({ username: 'tester', name: 'Tester', passwordHash })
+  const savedUser = await user.save()
+  defaultUserId = savedUser._id
+
+  const blogObjects = blogs.map(blog => new Blog({ ...blog, user: defaultUserId }))
+  const promiseArray = blogObjects.map(blog => blog.save())
+  await Promise.all(promiseArray)
 })
 
 test('blogs are returned as json', async () => {
@@ -67,7 +75,7 @@ test('POST blog', async () => {
     likes: 3
   }
 
-  const blogs = await Blog.find({})
+  const blogsBefore = await Blog.find({})
 
   const response = await api
     .post('/api/blogs')
@@ -76,11 +84,11 @@ test('POST blog', async () => {
     .expect('Content-Type', /application\/json/)
 
   const blogsAfter = await Blog.find({})
-  assert.strictEqual(blogsAfter.length, blogs.length + 1, 'No se incrementó la cantidad de blogs')
-
+  assert.strictEqual(blogsAfter.length, blogsBefore.length + 1, 'No se incrementó la cantidad de blogs')
   const titles = blogsAfter.map(b => b.title)
   assert.ok(titles.includes('Test Blog'), 'New blog not found')
 })
+
 
 test('blogs must have likes field', async () => {
   const newBlog = {

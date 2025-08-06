@@ -1,8 +1,9 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({})
+  const blogs = await Blog.find({}).populate('user', {username: 1, name: 1, id: 1})
   response.json(blogs)
 })
 
@@ -18,26 +19,39 @@ blogsRouter.get('/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-blogsRouter.post('/', (request, response, next) => {
-  const body = request.body
+blogsRouter.post('/', async (request, response, next) => {
+  try {
+    const body = request.body
 
-  if (!body.title || !body.url) {
-    return response.status(400).json({ error: 'title and url are required' })
-  }
+    if (!body.title || !body.url) {
+      return response.status(400).json({ error: 'title and url are required' })
+    }
 
-  const blog = new Blog({
-    title: body.title,
-    author: body.author,
-    url: body.url,
-    likes: body.likes
-  })
+    const user = await User.findOne({})
 
-  blog.save()
-    .then(savedBlog => {
-      response.status(201).json(savedBlog)
+    if (!user) {
+      return response.status(400).json({ error: 'No user found to assign blog' })
+    }
+
+    const blog = new Blog({
+      title: body.title,
+      author: body.author,
+      url: body.url,
+      likes: body.likes ?? 0,
+      user: user._id
     })
-    .catch(error => next(error))
+
+    const savedBlog = await blog.save()
+
+    user.blogs = user.blogs.concat(savedBlog._id)
+    await user.save()
+    
+    response.status(201).json(savedBlog)
+  } catch (error) {
+    next(error)
+  }
 })
+
 
 blogsRouter.delete('/:id', (request, response, next) => {
   Blog.findByIdAndDelete(request.params.id)

@@ -1,5 +1,6 @@
 const { test, describe, beforeEach, after} = require('node:test')
 const User = require('../models/user')
+const Blog = require('../models/blog')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
@@ -11,6 +12,7 @@ const api = supertest(app)
 
 beforeEach(async () => {
   await User.deleteMany({})
+  await Blog.deleteMany({})
 
   const passwordHash = await bcrypt.hash('sekret', 10)
   const user = new User({ username: 'root', passwordHash })

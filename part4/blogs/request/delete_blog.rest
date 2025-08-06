@@ -1,2 +1,37 @@
-# Before running the test, make sure the ID is valid.
-DELETE http://localhost:3001/api/blogs/688bb89548235e594fe5787d
+### 1. Login
+POST http://localhost:3001/api/login
+Content-Type: application/json
+
+{
+  "username": "MMM",
+  "password": "123"
+}
+
+### 2. Crear blog con usuario A
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1NTSIsImlkIjoiNjg5M2MzYzc3NWYyOWU2ZmFhZTMxZjQ1IiwiaWF0IjoxNzU0NTE2NDE4LCJleHAiOjE3NTQ1MjAwMTh9.EwoCSY_zPdgbVHpqAUOTcl4o8Hjvntb-wjVqaLsAVAI
+
+{
+  "title": "Sara",
+  "author": "Fleetwood Mac",
+  "url": "http://fleetwood.com",
+  "likes": 10
+}
+
+### 3. Login 2
+POST http://localhost:3001/api/login
+Content-Type: application/json
+
+{
+  "username": "NNN",
+  "password": "321"
+}
+
+### 4. User 2 tries to delete the blog but he can't
+DELETE http://localhost:3001/api/blogs/6893cbd19fc12994412c3c28
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik5OTiIsImlkIjoiNjg5M2NjMmE5ZmMxMjk5NDQxMmMzYzJjIiwiaWF0IjoxNzU0NTE2NTMwLCJleHAiOjE3NTQ1MjAxMzB9.rQ0kkUiJt5uEmec3W9L5SJ4wa9S2o9lYFPMFC4VLQfg
+
+### 5. User 1 tries to delete the blog and he can
+DELETE http://localhost:3001/api/blogs/6893cbd19fc12994412c3c28
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik1NTSIsImlkIjoiNjg5M2MzYzc3NWYyOWU2ZmFhZTMxZjQ1IiwiaWF0IjoxNzU0NTE2NDE4LCJleHAiOjE3NTQ1MjAwMTh9.EwoCSY_zPdgbVHpqAUOTcl4o8Hjvntb-wjVqaLsAVAI

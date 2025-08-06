@@ -1,3 +1,4 @@
+###  Creates user 1
 POST http://localhost:3001/api/users
 Content-Type: application/json
 
@@ -5,4 +6,14 @@ Content-Type: application/json
   "username": "MMM",
   "name": "Mateo",
   "password": "123"
+}
+
+### Creates user 2
+POST http://localhost:3001/api/users
+Content-Type: application/json
+
+{
+  "username": "NNN",
+  "name": "Nacho",
+  "password": "321"
 }

@@ -83,6 +83,7 @@ describe('when there is initially one user in db', () => {
 
   test('creation fails if username already taken', async () => {
     const usersAtStart = await listHelper.usersInDb()
+    console.log('usersAtStart:', usersAtStart.length)
 
     const newUser = {
       username: 'root',
@@ -124,6 +125,7 @@ describe('when there is initially one user in db', () => {
 
   test('fails if password is too short', async () => {
     const usersAtStart = await listHelper.usersInDb()
+    console.log('usersAtStart:', usersAtStart.length)
 
     const newUser = {
       username: 'MMalpassi',

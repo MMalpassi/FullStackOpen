@@ -10,9 +10,21 @@ usersRouter.get('/', async (request, response) => {
 usersRouter.post('/', async (request, response, next) => {
   const { username, name, password } = request.body
 
+  if (!username) {
+    return response.status(400).json({
+      error: 'username is required'
+    })
+  }
+
+  if (typeof username !== 'string' || username.trim().length < 3) {
+    return response.status(400).json({
+      error: 'username required a minimum allowed length of 3'
+    })
+  }
+
   if (!password || typeof password !== 'string' || password.trim().length < 3) {
     return response.status(400).json({
-      error: 'Password must be at least 3 characters long'
+      error: 'password must be at least 3 characters long'
     })
   }
 
@@ -30,9 +42,11 @@ usersRouter.post('/', async (request, response, next) => {
 
     response.status(201).json(savedUser)
   } catch (error){
+    if (error.name === 'MongoServerError' && error.code === 11000) {
+      return response.status(400).json({ error: 'Username must be unique' })
+    }
     next(error)
   }
-
 })
 
 module.exports = usersRouter

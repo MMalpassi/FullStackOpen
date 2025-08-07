@@ -37,6 +37,7 @@ const blogs = [
 ]
 
 let defaultUserId = null
+let authToken = ''
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -47,6 +48,12 @@ beforeEach(async () => {
   const savedUser = await user.save()
   defaultUserId = savedUser._id
 
+  const loginResponse = await api
+    .post('/api/login')
+    .send({ username: 'tester', password: 'testpassword' })
+
+  authToken = loginResponse.body.token
+  
   const blogObjects = blogs.map(blog => new Blog({ ...blog, user: defaultUserId }))
   const promiseArray = blogObjects.map(blog => blog.save())
   await Promise.all(promiseArray)
@@ -79,6 +86,7 @@ test('POST blog', async () => {
 
   const response = await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${authToken}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -102,6 +110,7 @@ test('blogs must have likes field', async () => {
 
   const response = await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${authToken}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -118,6 +127,7 @@ test('blog must have title field', async () => {
 
   const response = await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${authToken}`)
     .send(newBlog)
   
   assert.strictEqual(response.statusCode, 400)
@@ -132,6 +142,7 @@ test('blog must have url field', async () => {
 
   const response = await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${authToken}`)
     .send(newBlog)
 
   assert.strictEqual(response.statusCode, 400)
@@ -147,6 +158,7 @@ test('a single field eliminated', async () => {
 
   const response = await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${authToken}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -155,6 +167,7 @@ test('a single field eliminated', async () => {
 
   await api
     .patch(`/api/blogs/${newBlogmodified.id}/unset`)
+    .set('Authorization', `Bearer ${authToken}`)
     .send({ likes: '' })
     .expect(200)
 
@@ -172,6 +185,7 @@ test('a blog can be partially updated with PATCH', async () => {
 
   const response = await api
     .patch(`/api/blogs/${blogToUpdate.id}/update`)
+    .set('Authorization', `Bearer ${authToken}`)
     .send(update)
     .expect(200)
     .expect('Content-Type', /application\/json/)

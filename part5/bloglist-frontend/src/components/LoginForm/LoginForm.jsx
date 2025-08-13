@@ -2,14 +2,14 @@
     return (
       <div>
         <h2>Login to application</h2>
-        <form onSubmit={props.handleLogin}>
+        <form onSubmit={props.handleSubmit}>
           <div>
             Username:
             <input
             type="text"
             value={props.username}
             name="Username"
-            onChange={({ target }) => setUsername(target.value)}
+            onChange={props.handleUsernameChange}
             >
             </input>
           </div>
@@ -19,7 +19,7 @@
               type="text"
               value={props.password}
               name="Password"
-              onChange={({target}) => setPassword(target.value)} 
+              onChange={props.handlePasswordChange} 
             >
             </input>
           </div>

@@ -1,22 +1,18 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog/Blog'
 import Notification from './components/Notification/Notification'
 import CreateBlog from './components/CreateBlogs/CreateBlogs'
 import LoginForm from './components/LoginForm/LoginForm'
+import Togglable from './components/Togglable/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
   const [successMessage, setSuccessMessage] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
-  const [loginVisible, setLoginVisible] = useState(false)
+  const [dataBlogVisible, setDataBlogVisible] = useState({})
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -28,8 +24,8 @@ const App = () => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
       blogService.setToken(user.token)
+      setUser(user)
     }
   }, [])
 
@@ -39,96 +35,98 @@ const App = () => {
     setUser(null)
   }
 
-  const handleLogin = async (event) => {
-    event.preventDefault()
-
-    try{
-      const user = await loginService.login({
-        username,password
-      })
-      window.localStorage.setItem(
-        'loggedBlogappUser', JSON.stringify(user)
-      ) 
+  const handleLogin = async ({ username, password }) => {
+    try {
+      const user = await loginService.login({ username, password })
+      window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
       blogService.setToken(user.token)
       setUser(user)
-      setUsername('')
-      setPassword('')
-      setSuccessMessage('Login succeds!')
+      setSuccessMessage('Login succeeded!')
+      setTimeout(() => setSuccessMessage(null), 5000)
+    } catch (exception) {
+      setErrorMessage('Wrong Credentials')
+      setTimeout(() => setErrorMessage(null), 5000)
+    }
+  }
+
+  const addBlog = async (blogObject) => {
+    blogFormRef.current.toggleVisibility()
+    try {
+      const returnedBlog = await blogService.create(blogObject)
+      setBlogs(blogs.concat(returnedBlog))
+      setSuccessMessage(`A new blog "${returnedBlog.title}" by ${returnedBlog.author} added`)
       setTimeout(() => {
         setSuccessMessage(null)
       }, 5000)
-    }catch (exception){
-      setErrorMessage('Wrong Credentials')
+    } catch (error) {
+      setErrorMessage('Error creating blog')
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
     }
   }
 
-  const handleCreateBlog = (event) => {
-    event.preventDefault()
-    addBlog({ title, author, url })
-    setTitle('')
-    setAuthor('')
-    setUrl('')
+  const handdleDataBlogVisible = (id) => {
+    setDataBlogVisible(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }))
   }
 
-  const createBlog = () => {
-    const hideWhenVisible = { display: loginVisible ? 'none' : '' }
-    const showWhenVisible = { display: loginVisible ? '' : 'none' }
+  const handleLike = async (blog) => {
+    try {
+      const updatedBlog = {
+        title: blog.title,
+        author: blog.author,
+        url: blog.url,
+        likes: blog.likes + 1,
+        user: typeof blog.user === 'string' ? blog.user : blog.user.id
+      }
 
-    return (
-      <div>
-        <div style={hideWhenVisible}>
-          <button onClick={() => setLoginVisible(true)}>Create new blog</button>
-        </div>
-        <div style={showWhenVisible}>
-          <CreateBlog
-            title={title}
-            author={author}
-            url={url}
-            handleTitleChange={({ target }) => setTitle(target.value)}
-            handleAuthorChange={({ target }) => setAuthor(target.value)}
-            handleUrlChange={({ target }) => setUrl(target.value)}
-            handleSubmit={handleCreateBlog}
-          />
-          <button onClick={() => setLoginVisible(false)}>cancel</button>
-        </div>
-      </div>
-    )
+      const returnedBlog = await blogService.update(blog.id, updatedBlog)
+
+      setBlogs(blogs.map(b => b.id === blog.id ? returnedBlog : b))
+    } catch (error) {
+      console.error('Error liking the blog:', error)
+    }
   }
 
-  const loginForm = () => {
-    return (
-      <div>
-          <LoginForm
-            username={username}
-            password={password}
-            handleUsernameChange={({ target }) => setUsername(target.value)}
-            handlePasswordChange={({ target }) => setPassword(target.value)}
-            handleSubmit={handleLogin}
-          />
-      </div>
-    )
-  }
-
+  const blogFormRef = useRef()
+          
   return (
     <div>
       <Notification message={successMessage} error={errorMessage}/>
       {user === null ? 
-        loginForm() :
+      <LoginForm
+        submitLogin={handleLogin}
+      /> :
         <>
-          <p>{user.name} logged-in
+          <p>
+            {user.name} logged-in
             <button type="submit" onClick={handleLogout}>logout</button>
           </p>
           
           <h2> Create a new blog </h2>
-          {createBlog()}
+          <Togglable buttonLabel="New blog" ref={blogFormRef}>
+            <CreateBlog
+              createBlog={addBlog}
+            />
+          </Togglable>
 
           <h2>Blogs</h2>
-          {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} />
-          )}
+          <div>
+            {[...blogs]
+            .sort((blog1, blog2) => blog2.likes - blog1.likes)
+            .map(blog => (
+              <Blog
+                key={blog.id}
+                blog={blog}
+                isVisible={dataBlogVisible[blog.id]}
+                toggleVisibility={() => handdleDataBlogVisible(blog.id)}
+                handleLike={handleLike}
+              />
+            ))}
+          </div>
         </>
       }
     </div>

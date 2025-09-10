@@ -91,6 +91,42 @@ const App = () => {
     }
   }
 
+  const handleRemove = async (blog) => {
+    if (!blog.author){ 
+      try {
+        await blogService.remove(blog.id)
+        setBlogs(blogs.filter(b => blog.id !== b.id))
+        setSuccessMessage(`The blog has been removed`)
+        setTimeout(() => {
+          setSuccessMessage(null)
+        }, 5000)
+        return
+      } catch (error) {
+        console.error(error)
+        setErrorMessage(`Error trying to remove the blog`)
+        setTimeout(() => {
+          setSuccessMessage(null)
+        }, 5000)
+      }
+    }
+    const confirmed = window.confirm(`Are you sure to remove "${blog.title}" by "${blog.author}"?`)
+    if (!confirmed) return
+    try {
+      await blogService.remove(blog.id)
+      setBlogs(blogs.filter(b => blog.id !== b.id))
+      setSuccessMessage(`The blog has been removed`)
+      setTimeout(() => {
+        setSuccessMessage(null)
+      }, 5000)
+    } catch (error) {
+      console.error(error)
+      setErrorMessage(`Error trying to remove the blog`)
+      setTimeout(() => {
+        setSuccessMessage(null)
+      }, 5000)
+    }
+  }
+
   const blogFormRef = useRef()
           
   return (
@@ -124,6 +160,7 @@ const App = () => {
                 isVisible={dataBlogVisible[blog.id]}
                 toggleVisibility={() => handdleDataBlogVisible(blog.id)}
                 handleLike={handleLike}
+                handleRemove={handleRemove}
               />
             ))}
           </div>

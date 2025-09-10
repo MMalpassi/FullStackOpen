@@ -1,6 +1,6 @@
 import './Blog.css'
 
-const Blog = ({ blog, isVisible, toggleVisibility, handleLike }) => {
+const Blog = ({ blog, isVisible, toggleVisibility, handleLike, handleRemove }) => {
   return (
     <div className='blog-container'>
       <p>{blog.title}</p>
@@ -15,6 +15,9 @@ const Blog = ({ blog, isVisible, toggleVisibility, handleLike }) => {
           <p>URL: {blog.url}</p>
           <p>
             Likes: {blog.likes} <button onClick={() => handleLike(blog)}>Like</button>
+          </p>
+          <p>
+            <button onClick={() => handleRemove(blog)}>Remove</button>
           </p>
           <button onClick={toggleVisibility}>Cancel</button>
         </div>

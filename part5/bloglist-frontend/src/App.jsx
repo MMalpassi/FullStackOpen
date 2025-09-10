@@ -17,7 +17,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -92,18 +92,18 @@ const App = () => {
   }
 
   const handleRemove = async (blog) => {
-    if (!blog.author){ 
+    if (!blog.author){
       try {
         await blogService.remove(blog.id)
         setBlogs(blogs.filter(b => blog.id !== b.id))
-        setSuccessMessage(`The blog has been removed`)
+        setSuccessMessage('The blog has been removed')
         setTimeout(() => {
           setSuccessMessage(null)
         }, 5000)
         return
       } catch (error) {
         console.error(error)
-        setErrorMessage(`Error trying to remove the blog`)
+        setErrorMessage('Error trying to remove the blog')
         setTimeout(() => {
           setSuccessMessage(null)
         }, 5000)
@@ -114,13 +114,13 @@ const App = () => {
     try {
       await blogService.remove(blog.id)
       setBlogs(blogs.filter(b => blog.id !== b.id))
-      setSuccessMessage(`The blog has been removed`)
+      setSuccessMessage('The blog has been removed')
       setTimeout(() => {
         setSuccessMessage(null)
       }, 5000)
     } catch (error) {
       console.error(error)
-      setErrorMessage(`Error trying to remove the blog`)
+      setErrorMessage('Error trying to remove the blog')
       setTimeout(() => {
         setSuccessMessage(null)
       }, 5000)
@@ -128,20 +128,20 @@ const App = () => {
   }
 
   const blogFormRef = useRef()
-          
+
   return (
     <div>
       <Notification message={successMessage} error={errorMessage}/>
-      {user === null ? 
-      <LoginForm
-        submitLogin={handleLogin}
-      /> :
+      {user === null ?
+        <LoginForm
+          submitLogin={handleLogin}
+        /> :
         <>
           <p>
             {user.name} logged-in
             <button type="submit" onClick={handleLogout}>logout</button>
           </p>
-          
+
           <h2> Create a new blog </h2>
           <Togglable buttonLabel="New blog" ref={blogFormRef}>
             <CreateBlog
@@ -152,17 +152,17 @@ const App = () => {
           <h2>Blogs</h2>
           <div>
             {[...blogs]
-            .sort((blog1, blog2) => blog2.likes - blog1.likes)
-            .map(blog => (
-              <Blog
-                key={blog.id}
-                blog={blog}
-                isVisible={dataBlogVisible[blog.id]}
-                toggleVisibility={() => handdleDataBlogVisible(blog.id)}
-                handleLike={handleLike}
-                handleRemove={handleRemove}
-              />
-            ))}
+              .sort((blog1, blog2) => blog2.likes - blog1.likes)
+              .map(blog => (
+                <Blog
+                  key={blog.id}
+                  blog={blog}
+                  isVisible={dataBlogVisible[blog.id]}
+                  toggleVisibility={() => handdleDataBlogVisible(blog.id)}
+                  handleLike={handleLike}
+                  handleRemove={handleRemove}
+                />
+              ))}
           </div>
         </>
       }

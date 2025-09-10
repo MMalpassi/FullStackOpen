@@ -1,6 +1,6 @@
-import { useState } from "react"
+import { useState } from 'react'
 
-const LoginForm = ({submitLogin}) => {
+const LoginForm = ({ submitLogin }) => {
   const [newUsername, setUsername] = useState('')
   const [newPassword, setPassword] = useState('')
 
@@ -21,10 +21,10 @@ const LoginForm = ({submitLogin}) => {
         <div>
           Username:
           <input
-          type="text"
-          value={newUsername}
-          name="Username"
-          onChange={event => setUsername(event.target.value)}
+            type="text"
+            value={newUsername}
+            name="Username"
+            onChange={event => setUsername(event.target.value)}
           >
           </input>
         </div>
@@ -34,7 +34,7 @@ const LoginForm = ({submitLogin}) => {
             type="text"
             value={newPassword}
             name="Password"
-            onChange={event => setPassword(event.target.value)} 
+            onChange={event => setPassword(event.target.value)}
           >
           </input>
         </div>

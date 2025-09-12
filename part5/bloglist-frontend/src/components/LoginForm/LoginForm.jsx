@@ -16,27 +16,27 @@ const LoginForm = ({ submitLogin }) => {
 
   return (
     <div>
-      <h2>Login to application</h2>
+      <h2 data-testid="Login">Login to application</h2>
       <form onSubmit={newLogin}>
         <div>
-          Username:
+          <label htmlFor="username">Username:</label>
           <input
+            id="username"
             type="text"
             value={newUsername}
             name="Username"
             onChange={event => setUsername(event.target.value)}
-          >
-          </input>
+          />
         </div>
         <div>
-          Password
+          <label htmlFor="password">Password</label>
           <input
-            type="text"
+            id="password"
+            type="password"
             value={newPassword}
             name="Password"
             onChange={event => setPassword(event.target.value)}
-          >
-          </input>
+          />
         </div>
         <button type="submit">login</button>
       </form>

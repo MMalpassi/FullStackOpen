@@ -22,19 +22,19 @@ const CreateBlog = ({ createBlog }) => {
       <div>
         <label>
           Title:
-          <input value={newTitle} onChange={e => setTitle(e.target.value)} />
+          <input name="Title" value={newTitle} onChange={e => setTitle(e.target.value)} />
         </label>
       </div>
       <div>
         <label>
           Author:
-          <input value={newAuthor} onChange={e => setAuthor(e.target.value)} />
+          <input name="Author" value={newAuthor} onChange={e => setAuthor(e.target.value)} />
         </label>
       </div>
       <div>
         <label>
           URL:
-          <input value={newUrl} onChange={e => setUrl(e.target.value)} />
+          <input name="URL" value={newUrl} onChange={e => setUrl(e.target.value)} />
         </label>
       </div>
       <button type="submit">create</button>

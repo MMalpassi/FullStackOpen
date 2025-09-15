@@ -15,6 +15,7 @@ module.exports = {
   settings: { react: { version: '18.2' } },
   plugins: ['react-refresh'],
   rules: {
+    "linebreak-style": ["error", "unix"],
     "indent": [
         "error",
         2  

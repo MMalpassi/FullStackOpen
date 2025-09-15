@@ -50,7 +50,7 @@ test.describe('Blog app', () => {
       page.on('dialog', dialog => dialog.accept())
       const deleteButton = page.getByRole('button', { name: /remove/i })
       await deleteButton.click()
-      await expect(page.getByTestId('blog-basic')).not.toHaveText('Blog to delete by Tester')
+      await expect(page.getByText('Blog to like by Tester')).toHaveCount(0)
     })
   })
 })

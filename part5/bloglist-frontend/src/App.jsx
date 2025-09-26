@@ -1,4 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
+import { useDispatch } from 'react-redux'
+import {
+  setNotification,
+  clearNotification,
+} from './reducers/notificationReducer'
 import Blog from './components/Blog/Blog'
 import Notification from './components/Notification/Notification'
 import CreateBlog from './components/CreateBlogs/CreateBlogs'
@@ -8,10 +13,9 @@ import blogService from './services/blogs'
 import loginService from './services/login'
 
 const App = () => {
+  const dispatch = useDispatch()
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
-  const [successMessage, setSuccessMessage] = useState(null)
-  const [errorMessage, setErrorMessage] = useState(null)
   const [dataBlogVisible, setDataBlogVisible] = useState({})
 
   useEffect(() => {
@@ -39,11 +43,13 @@ const App = () => {
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
       blogService.setToken(user.token)
       setUser(user)
-      setSuccessMessage('Login succeeded!')
-      setTimeout(() => setSuccessMessage(null), 5000)
+      dispatch(
+        setNotification({ message: 'Login succeeded!', type: 'success' })
+      )
+      setTimeout(() => dispatch(clearNotification()), 5000)
     } catch (exception) {
-      setErrorMessage('Wrong Credentials')
-      setTimeout(() => setErrorMessage(null), 5000)
+      dispatch(setNotification({ message: 'Wrong credentials', type: 'error' }))
+      setTimeout(() => dispatch(clearNotification()), 5000)
     }
   }
 
@@ -52,17 +58,18 @@ const App = () => {
     try {
       const returnedBlog = await blogService.create(blogObject)
       setBlogs(blogs.concat(returnedBlog))
-      setSuccessMessage(
-        `A new blog "${returnedBlog.title}" by ${returnedBlog.author} added`
+      dispatch(
+        setNotification({
+          message: `A new blog "${returnedBlog.title}" by ${returnedBlog.author} added`,
+          type: 'success',
+        })
       )
-      setTimeout(() => {
-        setSuccessMessage(null)
-      }, 5000)
+      setTimeout(() => dispatch(clearNotification()), 5000)
     } catch (error) {
-      setErrorMessage('Error creating blog')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+      dispatch(
+        setNotification({ message: 'Error creating blog', type: 'error' })
+      )
+      setTimeout(() => dispatch(clearNotification()), 5000)
     }
   }
 
@@ -96,17 +103,23 @@ const App = () => {
       try {
         await blogService.remove(blog.id)
         setBlogs(blogs.filter((b) => blog.id !== b.id))
-        setSuccessMessage('The blog has been removed')
-        setTimeout(() => {
-          setSuccessMessage(null)
-        }, 5000)
+        dispatch(
+          setNotification({
+            message: 'The blog has been removed',
+            type: 'success',
+          })
+        )
+        setTimeout(() => dispatch(clearNotification()), 5000)
         return
       } catch (error) {
         console.error(error)
-        setErrorMessage('Error trying to remove the blog')
-        setTimeout(() => {
-          setSuccessMessage(null)
-        }, 5000)
+        dispatch(
+          setNotification({
+            message: 'Error trying to remove the blog',
+            type: 'error',
+          })
+        )
+        setTimeout(() => dispatch(clearNotification()), 5000)
       }
     }
     const confirmed = window.confirm(
@@ -116,16 +129,22 @@ const App = () => {
     try {
       await blogService.remove(blog.id)
       setBlogs(blogs.filter((b) => blog.id !== b.id))
-      setSuccessMessage('The blog has been removed')
-      setTimeout(() => {
-        setSuccessMessage(null)
-      }, 5000)
+      dispatch(
+        setNotification({
+          message: 'The blog has been removed',
+          type: 'success',
+        })
+      )
+      setTimeout(() => dispatch(clearNotification()), 5000)
     } catch (error) {
       console.error(error)
-      setErrorMessage('Error trying to remove the blog')
-      setTimeout(() => {
-        setSuccessMessage(null)
-      }, 5000)
+      dispatch(
+        setNotification({
+          message: 'Error trying to remove the blog',
+          type: 'error',
+        })
+      )
+      setTimeout(() => dispatch(clearNotification()), 5000)
     }
   }
 
@@ -133,7 +152,7 @@ const App = () => {
 
   return (
     <div>
-      <Notification message={successMessage} error={errorMessage} />
+      <Notification />
       {user === null ? (
         <LoginForm submitLogin={handleLogin} />
       ) : (

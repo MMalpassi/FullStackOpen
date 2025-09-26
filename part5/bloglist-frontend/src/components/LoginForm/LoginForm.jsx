@@ -8,7 +8,7 @@ const LoginForm = ({ submitLogin }) => {
     event.preventDefault()
     submitLogin({
       username: newUsername,
-      password: newPassword
+      password: newPassword,
     })
     setUsername('')
     setPassword('')
@@ -25,7 +25,7 @@ const LoginForm = ({ submitLogin }) => {
             type="text"
             value={newUsername}
             name="Username"
-            onChange={event => setUsername(event.target.value)}
+            onChange={(event) => setUsername(event.target.value)}
           />
         </div>
         <div>
@@ -35,7 +35,7 @@ const LoginForm = ({ submitLogin }) => {
             type="password"
             value={newPassword}
             name="Password"
-            onChange={event => setPassword(event.target.value)}
+            onChange={(event) => setPassword(event.target.value)}
           />
         </div>
         <button type="submit">login</button>

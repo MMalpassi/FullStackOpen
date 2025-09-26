@@ -15,9 +15,7 @@ const App = () => {
   const [dataBlogVisible, setDataBlogVisible] = useState({})
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )
+    blogService.getAll().then((blogs) => setBlogs(blogs))
   }, [])
 
   useEffect(() => {
@@ -54,7 +52,9 @@ const App = () => {
     try {
       const returnedBlog = await blogService.create(blogObject)
       setBlogs(blogs.concat(returnedBlog))
-      setSuccessMessage(`A new blog "${returnedBlog.title}" by ${returnedBlog.author} added`)
+      setSuccessMessage(
+        `A new blog "${returnedBlog.title}" by ${returnedBlog.author} added`
+      )
       setTimeout(() => {
         setSuccessMessage(null)
       }, 5000)
@@ -67,9 +67,9 @@ const App = () => {
   }
 
   const handdleDataBlogVisible = (id) => {
-    setDataBlogVisible(prev => ({
+    setDataBlogVisible((prev) => ({
       ...prev,
-      [id]: !prev[id]
+      [id]: !prev[id],
     }))
   }
 
@@ -80,22 +80,22 @@ const App = () => {
         author: blog.author,
         url: blog.url,
         likes: blog.likes + 1,
-        user: typeof blog.user === 'string' ? blog.user : blog.user.id
+        user: typeof blog.user === 'string' ? blog.user : blog.user.id,
       }
 
       const returnedBlog = await blogService.update(blog.id, updatedBlog)
 
-      setBlogs(blogs.map(b => b.id === blog.id ? returnedBlog : b))
+      setBlogs(blogs.map((b) => (b.id === blog.id ? returnedBlog : b)))
     } catch (error) {
       console.error('Error liking the blog:', error)
     }
   }
 
   const handleRemove = async (blog) => {
-    if (!blog.author){
+    if (!blog.author) {
       try {
         await blogService.remove(blog.id)
-        setBlogs(blogs.filter(b => blog.id !== b.id))
+        setBlogs(blogs.filter((b) => blog.id !== b.id))
         setSuccessMessage('The blog has been removed')
         setTimeout(() => {
           setSuccessMessage(null)
@@ -109,11 +109,13 @@ const App = () => {
         }, 5000)
       }
     }
-    const confirmed = window.confirm(`Are you sure to remove "${blog.title}" by "${blog.author}"?`)
+    const confirmed = window.confirm(
+      `Are you sure to remove "${blog.title}" by "${blog.author}"?`
+    )
     if (!confirmed) return
     try {
       await blogService.remove(blog.id)
-      setBlogs(blogs.filter(b => blog.id !== b.id))
+      setBlogs(blogs.filter((b) => blog.id !== b.id))
       setSuccessMessage('The blog has been removed')
       setTimeout(() => {
         setSuccessMessage(null)
@@ -131,29 +133,28 @@ const App = () => {
 
   return (
     <div>
-      <Notification message={successMessage} error={errorMessage}/>
-      {user === null ?
-        <LoginForm
-          submitLogin={handleLogin}
-        /> :
+      <Notification message={successMessage} error={errorMessage} />
+      {user === null ? (
+        <LoginForm submitLogin={handleLogin} />
+      ) : (
         <>
           <p>
             <label> {user.name} logged-in </label>
-            <button type="submit" onClick={handleLogout}>logout</button>
+            <button type="submit" onClick={handleLogout}>
+              logout
+            </button>
           </p>
 
           <h2> Create a new blog </h2>
           <Togglable buttonLabel="New blog" ref={blogFormRef}>
-            <CreateBlog
-              createBlog={addBlog}
-            />
+            <CreateBlog createBlog={addBlog} />
           </Togglable>
 
           <h2>Blogs</h2>
           <div>
             {[...blogs]
               .sort((blog1, blog2) => blog2.likes - blog1.likes)
-              .map(blog => (
+              .map((blog) => (
                 <Blog
                   key={blog.id}
                   blog={blog}
@@ -165,7 +166,7 @@ const App = () => {
               ))}
           </div>
         </>
-      }
+      )}
     </div>
   )
 }

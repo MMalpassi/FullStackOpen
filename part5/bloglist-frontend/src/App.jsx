@@ -1,9 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import {
   setNotification,
   clearNotification,
 } from './reducers/notificationReducer'
+import {
+  setBlogs,
+  appendBlog,
+  updateBlog,
+  removeBlog,
+} from './reducers/blogReducer'
+import { setUser, clearUser } from './reducers/userReducers'
 import Blog from './components/Blog/Blog'
 import Notification from './components/Notification/Notification'
 import CreateBlog from './components/CreateBlogs/CreateBlogs'
@@ -14,27 +21,27 @@ import loginService from './services/login'
 
 const App = () => {
   const dispatch = useDispatch()
-  const [blogs, setBlogs] = useState([])
-  const [user, setUser] = useState(null)
   const [dataBlogVisible, setDataBlogVisible] = useState({})
+  const user = useSelector((state) => state.user)
+  const blogs = useSelector((state) => state.blogs)
 
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs))
-  }, [])
+    blogService.getAll().then((blogs) => dispatch(setBlogs(blogs)))
+  }, [dispatch])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       blogService.setToken(user.token)
-      setUser(user)
+      dispatch(setUser(user))
     }
-  }, [])
+  }, [dispatch])
 
   const handleLogout = (event) => {
     event.preventDefault()
     window.localStorage.removeItem('loggedBlogappUser')
-    setUser(null)
+    dispatch(clearUser())
   }
 
   const handleLogin = async ({ username, password }) => {
@@ -42,7 +49,7 @@ const App = () => {
       const user = await loginService.login({ username, password })
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
       blogService.setToken(user.token)
-      setUser(user)
+      dispatch(setUser(user))
       dispatch(
         setNotification({ message: 'Login succeeded!', type: 'success' })
       )
@@ -57,7 +64,7 @@ const App = () => {
     blogFormRef.current.toggleVisibility()
     try {
       const returnedBlog = await blogService.create(blogObject)
-      setBlogs(blogs.concat(returnedBlog))
+      dispatch(appendBlog(returnedBlog))
       dispatch(
         setNotification({
           message: `A new blog "${returnedBlog.title}" by ${returnedBlog.author} added`,
@@ -91,8 +98,7 @@ const App = () => {
       }
 
       const returnedBlog = await blogService.update(blog.id, updatedBlog)
-
-      setBlogs(blogs.map((b) => (b.id === blog.id ? returnedBlog : b)))
+      dispatch(updateBlog(returnedBlog))
     } catch (error) {
       console.error('Error liking the blog:', error)
     }
@@ -102,7 +108,7 @@ const App = () => {
     if (!blog.author) {
       try {
         await blogService.remove(blog.id)
-        setBlogs(blogs.filter((b) => blog.id !== b.id))
+        dispatch(removeBlog(blog.id))
         dispatch(
           setNotification({
             message: 'The blog has been removed',
@@ -128,7 +134,7 @@ const App = () => {
     if (!confirmed) return
     try {
       await blogService.remove(blog.id)
-      setBlogs(blogs.filter((b) => blog.id !== b.id))
+      dispatch(removeBlog(blog.id))
       dispatch(
         setNotification({
           message: 'The blog has been removed',

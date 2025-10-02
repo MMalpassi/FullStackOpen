@@ -1,5 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import { Card, ListGroup } from 'react-bootstrap'
+import './UserDetails.css'
 
 const UserDetails = () => {
   const id = useParams().id
@@ -11,14 +13,22 @@ const UserDetails = () => {
   }
 
   return (
-    <div>
-      <h2>{user.name}</h2>
-      <h3>Added Blogs</h3>
-      <ul>
-        {user.blogs.map((blog) => (
-          <li key={blog.id}>{blog.title}</li>
-        ))}
-      </ul>
+    <div className="user-detail-container">
+      <Card className="shadow-sm">
+        <Card.Body>
+          <Card.Title className="mb-3">{user.name}</Card.Title>
+          <h5 className="mb-3">Added Blogs</h5>
+          {user.blogs.length > 0 ? (
+            <ListGroup variant="flush" className="user-blogs">
+              {user.blogs.map((blog) => (
+                <ListGroup.Item key={blog.id}>{blog.title}</ListGroup.Item>
+              ))}
+            </ListGroup>
+          ) : (
+            <p className="text-muted">This user has not added any blogs yet.</p>
+          )}
+        </Card.Body>
+      </Card>
     </div>
   )
 }

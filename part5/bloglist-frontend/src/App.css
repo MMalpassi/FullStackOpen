@@ -1,0 +1,15 @@
+.navbar-custom {
+  background-color: #94b7d1;
+  color: white;
+  padding: 0.5rem 1rem;
+}
+
+.navbar-custom a {
+  color: white;
+  text-decoration: none;
+  margin-right: 1rem;
+}
+
+.navbar-custom button {
+  margin-left: 1rem;
+}

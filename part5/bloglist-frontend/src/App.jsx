@@ -22,6 +22,7 @@ import loginService from './services/login'
 import User from './components/User/User'
 import UserDetails from './components/UserDetails/UserDetails'
 import BlogDetails from './components/BlogDetails/BlogDetails'
+import './App.css'
 
 const App = () => {
   const dispatch = useDispatch()
@@ -161,17 +162,25 @@ const App = () => {
   const blogFormRef = useRef()
 
   return (
-    <div>
+    <div className="container">
       <Notification />
       {user === null ? (
         <LoginForm submitLogin={handleLogin} />
       ) : (
         <>
-          <nav>
-            <Link to="/">Blogs</Link> | <Link to="/users">Users</Link>
-            <label> {user.name} logged-in </label>
-            <button type="submit" onClick={handleLogout}>
-              logout
+          <nav className="navbar-custom">
+            <span className="me-3">
+              <Link to="/">Blogs</Link>
+            </span>
+            <span className="me-3">
+              <Link to="/users">Users</Link>
+            </span>
+            <span className="me-3">{user.name} logged-in</span>
+            <button
+              className="btn btn-outline-primary btn-sm"
+              onClick={handleLogout}
+            >
+              Logout
             </button>
           </nav>
 

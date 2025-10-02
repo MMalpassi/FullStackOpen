@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Form, Button } from 'react-bootstrap'
 
 const CreateBlog = ({ createBlog }) => {
   const [newTitle, setTitle] = useState('')
@@ -18,39 +19,43 @@ const CreateBlog = ({ createBlog }) => {
   }
 
   return (
-    <form onSubmit={addBlog}>
-      <div>
-        <label>
-          Title:
-          <input
-            name="Title"
+    <div>
+      <Form onSubmit={addBlog}>
+        <Form.Group className="mb-3" controlId="title">
+          <Form.Label>Title:</Form.Label>
+          <Form.Control
+            type="text"
             value={newTitle}
             onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter blog title"
           />
-        </label>
-      </div>
-      <div>
-        <label>
-          Author:
-          <input
-            name="Author"
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="author">
+          <Form.Label>Author:</Form.Label>
+          <Form.Control
+            type="text"
             value={newAuthor}
             onChange={(e) => setAuthor(e.target.value)}
+            placeholder="Enter author"
           />
-        </label>
-      </div>
-      <div>
-        <label>
-          URL:
-          <input
-            name="URL"
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="url">
+          <Form.Label>URL:</Form.Label>
+          <Form.Control
+            type="text"
             value={newUrl}
             onChange={(e) => setUrl(e.target.value)}
+            placeholder="Enter blog URL"
           />
-        </label>
-      </div>
-      <button type="submit">create</button>
-    </form>
+        </Form.Group>
+
+        <Button variant="outline-primary" size="sm" type="submit">
+          Create
+        </Button>
+      </Form>
+    </div>
   )
 }
 
